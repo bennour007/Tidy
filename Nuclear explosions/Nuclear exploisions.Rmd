@@ -1,0 +1,30 @@
+---
+title: "Nukes"
+author: "BMH"
+date: "25 November 2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The data is from  Stockholm International Peace Research Institute, by way of data is plural with credit to Jesus Castagnetto for sharing the dataset.
+
+We will be assessing nuclear explosions, how cool.!
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+nuclear_explosions <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-08-20/nuclear_explosions.csv")
+```
+
+
+
+
+
+
