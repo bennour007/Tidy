@@ -1,0 +1,185 @@
+---
+title: "power lifeters data_set"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+ipf_lifts <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-10-08/ipf_lifts.csv")
+```
+
+### Inspect NAs in the data : 
+
+```{r}
+ipf_lifts %>%
+  sapply(is.na) %>%
+  colSums()
+```
+
+### Curiosity questions: DR style.
+
+```{r}
+# what do we exactly mean with division.?
+ipf_lifts %>%
+  count(division, sort = T)
+# A == SI
+```
+
+```{r}
+# do we have repetetive names.?
+ipf_lifts %>% 
+  count(name, sort = T) 
+# A == SI
+```
+
+### data prerp:
+
+I do not think that the place data is relevant beyond 10, so I will be limiting , the analysis to place >= 10
+
+```{r}
+# data to analyse: the top 10 performers in each cycle.
+data_1 <- ipf_lifts %>% 
+  select(- federation) %>%
+  filter(place %in% c(1:10)) 
+```
+
+The following chunk contains some data cleaning operations which we built up block by block according to the need in each step of the analysis.
+
+```{r}
+# remove NAs from division
+data_2 <- data_1 %>% 
+  filter(!is.na(division)) %>% 
+  select(-meet_name)
+
+# rencode the excercice colnames
+colnames(data_2)[10:12] <- c("squat", "bench", "deadlift")
+# another non elegant way of doing this : 
+    #data_3$best <- data_3 %>% 
+    #  pull(best) %>% 
+    #  substr(6,10)
+
+# encode all character columns as factors, except column name (not elegant)
+data_2 <- data_2 %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(name = as.character(name)) 
+
+#levels(data_2 %>% pull(place)) <- fct_relevel(data_2$place, "10", after = Inf) 
+# something went wrong here: the 4 last levels where integrated with the 6 first, in a way that the sum did not cange
+##||##
+##VV##
+# solution DR style 
+places <- c("1","2","3","4","5","6","7","8","9","10")
+data_2 <- data_2 %>% mutate(place = fct_relevel(place, places)) # elegent solution
+```
+
+to ease analysis I am going to gather the 3 competion excercices into 1 column
+
+```{r}
+data_3 <- data_2 %>%
+  gather(bench, squat, deadlift, key= "best", value = "kg")
+```
+
+Now we can easily visualize and analyze each excercice
+
+```{r}
+data_3 %>%
+  count(event)
+data_3 %>%
+  count(equipment)
+data_3 %>%
+  count(place)
+```
+
+
+```{r}
+data_3 %>%
+  ggplot(aes(x = kg, fill = event)) + 
+  geom_histogram() + 
+  facet_grid(sex ~ best) +
+  labs(title = "does sex, and event, affect the weight lifted.?")
+
+data_3 %>%
+  ggplot(aes(x = equipment, y = kg, fill = sex)) + 
+  geom_boxplot() + 
+  facet_grid(~ best) + 
+  coord_flip() +
+  labs(title = "how does the use of equipement differs in terms of sex and weight lifted.?")
+
+data_3 %>%
+  ggplot(aes(x = equipment, y = kg, fill = event)) + 
+  geom_boxplot() + 
+  facet_grid(~ best) + 
+  coord_flip() +
+  labs(title = "how does the equipement use differs in terms of event and weight lifted.?")
+  
+
+data_3 %>%
+  ggplot(aes(x = event, y = kg, fill = sex)) + 
+  geom_boxplot() +  
+  facet_grid(~ best) + 
+  labs(title = "how does the weight lifted by sex differs by event.?")
+
+data_2 %>%
+  ggplot(aes(x = division, y = deadlift)) + 
+  geom_boxplot() + 
+  facet_grid(sex~.) +
+  coord_flip() +
+  labs(title = "how does the division lifters differ by sex")
+
+data_2 %>%
+  select(division, deadlift, bench, squat) %>%
+  group_by(division) %>%
+  summarise(deadlift = mean(deadlift),
+            squat = mean(squat),
+            bench = mean(bench)) %>%
+  gather(deadlift, squat, bench, key = "best", value = "mean") %>%
+  ggplot(aes(x = division, y = mean)) + 
+  geom_col() + 
+  facet_grid(~best) + 
+  coord_flip()
+
+data_2 %>%
+  select(division, deadlift, bench, squat) %>%
+  group_by(division) %>%
+  summarise(deadlift = median(deadlift),
+            squat = median(squat),
+            bench = median(bench)) %>%
+  gather(deadlift, squat, bench, key = "best", value = "median") %>%
+  ggplot(aes(x = division, y = median)) + 
+  geom_col() + 
+  facet_grid(~best) + 
+  coord_flip()
+```
+
+
+```{r}
+data_3 %>%
+  select(division, place, best, kg) %>%
+  ggplot(aes(x = division, y = kg, colour = best)) +
+  geom_point(alpha = 0.5) + 
+  coord_flip() +
+  facet_wrap(vars(place)) +
+  labs(title = "how are the places distributed by division to the weight lifted and to the excercice")
+
+data_3 %>%
+  select(division, place, sex) %>%
+  count(place, division, sex) %>%
+  ggplot(aes(x = place, y = n, fill = sex)) +
+    geom_col()+
+    facet_wrap(vars(division), scales = "free") 
+
+```
+
+
+**To deepen the analysis, I think hypthesis testing is the go to solution, to test the significance of being in a group and actually being in the top 3**
+
+
+
+
+

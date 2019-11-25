@@ -1,0 +1,218 @@
+---
+title: "Bird of the year"
+author: "BMH"
+date: "22 November 2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### loading packages 
+
+```{r include=FALSE}
+library(tidyverse)
+library(votesys)
+```
+
+### loading the data from the Tidy Tuesday Github repo
+
+```{r}
+nz_bird <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-11-19/nz_bird.csv")
+```
+
+This is the NewZeland Bird of the year voting contest. we will try to analyze and find out who is the winner, and why? 
+*probably more stuff to figure later*
+
+### How many breeds do we  have?
+
+```{r}
+nz_bird %>%
+  count(bird_breed, sort = T)
+
+nz_bird %>% 
+  count(bird_breed, sort = T) %>% nrow()
+```
+
+### How is the voting is distributed over hours?
+
+```{r}
+nz_bird %>% 
+  count(hour, sort = T)
+
+nz_bird %>% 
+  count(hour, sort = T) %>%
+  ggplot(aes(x = hour, y = n)) + 
+  geom_col() + 
+  labs(title = "distribution of the voting hours")
+```
+
+### What is the range of the voing period(in days)?
+
+```{r}
+nz_bird %>% 
+  count(date, sort = T) %>%
+  ggplot(aes(x = date , y = n)) + 
+  geom_col() + 
+  labs(title = "distribution of the number of votes over the voting period",
+       subtitle = "from the 28th of October to the 10th of November 2019")
+```
+
+This means that:
+    * we have 86 breeds of birds to be voted for
+    * we have 14 days for voting.
+    * the peak of the votes was on the 6th of October
+    * the minimum of votes was on November the 3rd
+    * most of the votes was on 14:00
+    * the least votes was on 03:00 
+
+## Objective 
+We need to develop a program that reads this data set and do the calculations for each round in order to rank the birds according to the given votes.
+To do this we need first to understand how does the IRV system works.
+
+#### **Instatnt runoff voting system:**
+
+1/ A voter ranks the candidates in order of preference
+
+2/ The votes are assigned to the top ranked bird on each ballot
+
+3/ The bird with the fewest votes is eliminated and those votes are transferred to their second choices
+
+4/ This process is repeated until a candidate has a majority or only two candidates remain
+
+```{r}
+nz_bird %>% 
+  filter(vote_rank == "vote_1") %>%
+  count(bird_breed, sort = T) 
+
+nz_bird %>% 
+  filter(vote_rank == "vote_2") %>%
+  count(bird_breed, sort = T)
+
+nz_bird %>% 
+  filter(vote_rank == "vote_3") %>%
+  count(bird_breed, sort = T)
+
+nz_bird %>% 
+  filter(vote_rank == "vote_4") %>%
+  count(bird_breed, sort = T)
+
+nz_bird %>% 
+  filter(vote_rank == "vote_5") %>%
+  count(bird_breed, sort = T)
+```
+
+After some thinking I do not think this is the tidy version of this data.
+We need 5 columns indicating the rank choice of each breed, which gives us one observation (vote) per row.
+
+We do not really have NAs in our dataset, the NAs presented are because Voters do not have to give full ranked lists.
+
+After 3 hours of trying to figure how to spread the data using tidyr, I gave up and went back to the main repo to find out that the author used a developer function in tidyr "pivot_longer" to make it into this shape, and while I couldn't install that version of the tidyr to use the opposit function "tidy_wider", I just realized that I can just load the non modified original data, form the same repo. DEPRESSIVE.
+
+```{r}
+data <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-11-19/BOTY-votes-2019.csv") %>% select(-country)
+
+```
+
+NOW THIS IS THE DATA I WANT.
+
+Let's Investigate more.
+We have 43460 vote (that is a list of ranked 5 birds), this means that to have a winning bird, it needs to have 21730 votes.
+
+```{r}
+rank_bird <- nz_bird %>%
+  count(bird_breed, vote_rank, sort = T) %>%
+  spread(vote_rank, n) %>%
+  mutate(t_votes = rowSums(nz_bird %>%
+                                  count(bird_breed, vote_rank, sort = T) %>%
+                                  spread(vote_rank, n) %>% 
+                                  select(-bird_breed), na.rm = F )) %>%
+  mutate(percentage = t_votes*100/43460) %>% 
+  arrange(desc(t_votes)) 
+
+rank_bird
+```
+
+The most voted for bird do not have a majority, therefore we need a new round of computation.
+It is also important to note that the NAs which represent almost 27% of the gven votes are exhausted (eliminated)
+
+#### *Using "votesys"*
+
+I am going to use the votesys library which is specialized in voting systems.
+and appearantly we have a winner after 79 rounds.
+
+The irv_method function, recieves a vote object, so the first thing to do is to prepare our votig data to get there.
+
+#### Creating a names vector of candidate birds to pass to the function creat_vote which match names and votes and create a condorcet matrix (I studied condorcet's theory in undergrad in microeconomics XD).
+
+```{r}
+library(votesys)
+# create a vector of candidates names (+ NAs do not count)
+n_birds <- nz_bird %>% 
+  count(bird_breed) %>% 
+  pull(bird_breed) %>%
+  .[-1]
+
+n_birds
+```
+
+Now we pass the names to the create_vote function to induce it to the irv_method function to get to know the coolest of birds.
+
+```{r}
+# creating a data frame of only the votes for the candidates to induce it into
+# a condorcet matrix with create_vote
+# the IRV calculation function(which is slow)
+# I will call this iteration : cool_bird
+cool_bird <- data %>% 
+  select(-date, -hour) %>%
+  as.data.frame() %>%
+  create_vote(., candidate = n_birds) %>%
+  irv_method(.)
+```
+
+To resume the voting process we need some informations which are given in the ouput of the function.
+It would be nice to Know:
+
+    * The coolest of birds(obviously) and the vice cool bird.
+    * The number of rounds to get the winning bird a majority.
+    * The number of votes for both 
+
+```{r}
+n_rounds <- cool_bird$other_info %>% length()
+
+final_birds <- cool_bird$other_info[n_rounds] %>%
+  as.data.frame() %>%
+  rename(birdy = Var1, n_votes = Freq) %>%
+  mutate(n_rounds = n_rounds,
+         abolute = cool_bird$absolute,
+         winner = c(FALSE, TRUE))
+final_birds
+```
+
+There You have it folks, loud and clear, we have a winner, with yellow eyes.
+
+![](Kakapo_DvW2007.jpg) ![](yellow-eyed-penguins-1920.jpg)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
