@@ -1,5 +1,7 @@
 ---
-title: "power lifeters data_set"
+title: "Power lifeters data_set"
+author: "BMH"
+date: "17 November 2019"
 output: html_document
 editor_options: 
   chunk_output_type: console
