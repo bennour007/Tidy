@@ -1,0 +1,233 @@
+---
+title: "Canadian wind turbines"
+author: "Bennour Mohamed Hsin"
+date: "27/10/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+In this post I will be treating the Canadian wind turbines dataset. you can check it out [here](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-10-27/readme.md)
+
+This data set is part of the Tidytuesday project, I love the project, I love the data published in it. 
+
+The best way to start all this, is to import tidyverse first thing, and just use the data from an online source just like in the github page.
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+wind_turbine <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-10-27/wind-turbine.csv')
+```
+
+```{r}
+wind_turbine %>% glimpse()
+```
+
+Now what kind of insights can we derive from this data? I am not really sure, nevertheless, the first that we need to do is try to understand what we have here. Since we have spatial data its an opportunity to work with maps then, anyhow, the more we dig the more we figure stuff to do, either because they are simply cool, or because they ease our work flow.
+
+So let's see where these turbines are concentrated in:
+
+```{r}
+wind_turbine %>%
+  count(province_territory, sort = T) %>%
+  mutate(percentage = round((n/6698)*100, 2),
+         cumulative = cumsum(percentage)) 
+```
+
+So there you go, 69% of the wind turbines in canada are installed in Ontario and Quebec(82% if we add Alberta). This is an interesting fact, but I think we should look up when did all this started, and how is the turbines service period is distributed. 
+
+```{r}
+wind_turbine %>%
+  count(commissioning_date, sort = T)
+```
+
+Apparently there is some year inputs where we don't have one year alone but rather a two years season; like instead of having 2014, we have 2014/2015 as a year. My take on this will be to keep only the first year of the combinations, since the year column is presented as a text we can do this easily using :
+
+```{r}
+wind_turbine[,12] <- wind_turbine %>%
+  select(commissioning_date) %>%
+  sapply(.,str_remove, "/.*") %>%
+  as.numeric() %>% 
+  as_tibble() 
+```
+
+The chunck above will fix the date issue directly in the original data column, then we don't have to change it everytime.
+
+```{r}
+wind_turbine %>%
+  count(commissioning_date, sort = T) %>%
+  mutate(percentage = round((n/6698)*100, 2),
+         commissioning_date = as_factor(commissioning_date)) %>%
+  ggplot(aes(x = commissioning_date, 
+             y = percentage)) +
+    geom_col(fill = "skyblue") +
+    theme_light() +
+    theme(axis.text.x=element_text(angle=90, hjust=1, vjust = 1))
+
+```
+
+This is the distribution of the percentage of wind turbines commissioned over the time period of the data set(25 years). 
+
+We can also do a more pragmatic visualization like the following : 
+```{r}
+wind_turbine %>%
+  count(commissioning_date, sort = T) %>%
+  mutate(percentage = round((n/6698)*100, 2),
+         commissioning_date = as_factor(commissioning_date)) %>%
+  mutate(commissioning_date= fct_reorder(commissioning_date, percentage)) %>%
+  ggplot(aes(x = commissioning_date,
+             y = percentage)) +
+    geom_col(fill = "skyblue") +
+    theme_light() +
+    coord_flip() 
+```
+
+Let's see what a descriptive summary of this distribution would give us : 
+
+```{r}
+wind_turbine %>%
+  count(commissioning_date, sort = T) %>%
+  mutate(percentage = round((n/6698)*100, 2),
+         commissioning_date = as_factor(commissioning_date)) %>%
+  summary()
+```
+
+The average turbine commissioning is at 4% every year. Now how do these numbers compare province wise? 
+An animated map will be very useful in this case, and frankly very challenging as well since I have never come across spatial data before, but let's do it anyway, let's set the map first:
+
+```{r}
+library(maps)
+library(gganimate)
+library(gifski)
+
+canada <- map_data("world", region = "canada")
+```
+However, a main issue that we need is how did the characteristics of each wind turbine project evolved over the period over which the data is collected. I thought I would use gganimate for this task to see the variation over time and space but it was so useless, its better to get onto this the old way.
+
+```{r}
+canada %>%
+  ggplot(aes(x = long, 
+             y = lat)) + 
+    geom_polygon(aes(group = group), fill = "grey") + 
+    geom_hex(data = wind_turbine, 
+             aes(x = longitude, 
+                 y = latitude)) + 
+    labs(title = "Where the turbines are located generally?") +
+    theme_void()
+
+```
+
+Well, there you go guys, geom_hex allows us to have a better view on the intensity of the turbines concentration, especially in the east south part.
+
+I am also intereseted in the capacity of each turbine, a map and a bubble point apporoach resulted in an ugly graph, then again, I used geom_hex
+
+```{r}
+wind_turbine %>%
+  group_by(province_territory) %>%
+  summarise(average = mean(turbine_rated_capacity_k_w, na.rm = T)) %>%
+  mutate(province_territory = fct_reorder(province_territory, average)) %>%
+  ggplot(aes(x = province_territory,
+             y = average)) + 
+    geom_col(fill = "skyblue") + 
+    coord_flip() +
+    labs(title = "The average turbine capacity in kw in each province")
+    theme_light()
+```
+
+There has been some 200ich NA's in the turbine_rated_capacity_k_w variable omitted, so take this table with a grain of salt.
+
+A good idea is to just check the nation wide average of turbine rated capacity and its evoloution over time: 
+
+```{r}
+library(lubridate)
+
+wind_turbine %>%
+  group_by(commissioning_date) %>%
+  summarise(average = mean(turbine_rated_capacity_k_w, na.rm = T)) %>%
+  ggplot(aes(x = commissioning_date,
+             y = average)) +
+    geom_line(color = "skyblue", size = 0.5) +
+    geom_point() + 
+    labs(title = "Evolution of individual turbine capacity over time") +
+    theme_light()
+############################################################################
+############################################################################
+# The same thing but faceting over the provinces #
+wind_turbine %>%
+  group_by(commissioning_date, province_territory) %>%
+  summarise(average = mean(turbine_rated_capacity_k_w, na.rm = T)) %>%
+  mutate(commissioning_date = year(as.Date(as.character(commissioning_date), format = "%Y"))) %>%
+  ggplot(aes(x = commissioning_date,
+             y = average)) +
+    geom_line(color = "skyblue", size = 0.5) +
+    geom_point() + 
+    facet_wrap(province_territory~.)+
+    labs(title = "Evolution of individual turbine capacity over time for each province") +
+    theme_light()
+```
+
+These turbines are mainly established under specific projects, a good idea is to understand the characteristics of these projects and how they did evolve over time and where. For example, a province might have one project that produces higher energy than others with more projects with less turbines and less energy output. Its up to us to figure this out. Let's get back to the data: 
+
+Let's start with the project capacity in mega watts: 
+
+```{r}
+wind_turbine %>%
+  group_by(province_territory) %>%
+  summarise(average = mean(total_project_capacity_mw)) %>%
+  mutate(province_territory = fct_reorder(province_territory, average)) %>%
+  ggplot(aes(x = province_territory,
+             y = average)) +
+  geom_col(fill = "skyblue") +
+  coord_flip() +
+  labs(title = "Average project capacity in mw in each province since 1993")
+  theme_light()
+
+wind_turbine %>%
+  select(total_project_capacity_mw) %>%
+  summary()
+```
+
+The descriptive statistics provides us that the average project capacity over 25 years in the provincees in Canada is 134.8.
+
+To get more information about the evolution of the projects' capacities over the years we will do this :
+
+```{r}
+wind_turbine %>%
+  group_by(province_territory, commissioning_date) %>%
+  summarise(average = mean(total_project_capacity_mw)) %>%
+  ggplot(aes(x = province_territory,
+             y = average)) +
+    geom_col(fill = "skyblue") +
+    coord_flip() +
+    labs(title = 'Year: {closest_state}') +
+    transition_states(commissioning_date) +
+    shadow_mark(fill = 'lightgrey', size = 0.4, past = T, future = F) +
+    theme_light()
+```
+
+Oh yeah, this shows not only the evolution of the capacity over time but also on the province level, Alberta, Ontario, and Quebec are leading the way, and gganimate is awsome. 
+
+Let's how the national average varies with the years: 
+
+```{r}
+wind_turbine %>%
+  group_by(commissioning_date) %>%
+  summarise(average = mean(total_project_capacity_mw)) %>%
+  ggplot(aes(x= commissioning_date,
+             y = average)) +
+    geom_point() +
+    geom_line(color = "skyblue", size = 0.4) + 
+    labs(title = "Evolution of projects capacities since 1993 nationwide") +
+    theme_light()
+```
+
+
+Now what else can we improve here : 
+
+  * Characteristics of the turbines themselves over time and province.
+  
+  * The companies who made the turbines, who are they and how often did they do it?
+  
+  * Mine for any important informations in the notes variable.
+  
+I guess that's all for now folks, I will keep this post updated as much as I can, feel free to hit me up with your feedback and to use the code to your liking.
+
+Thank you for stopping by(kee^showing up for the updates).
