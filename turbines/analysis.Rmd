@@ -6,6 +6,7 @@ output: html_document
 editor_options: 
   chunk_output_type: console
 ---
+
 In this post I will be treating the Canadian wind turbines dataset. you can check it out [here](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-10-27/readme.md)
 
 This data set is part of the Tidytuesday project, I love the project, I love the data published in it. 
@@ -128,7 +129,7 @@ wind_turbine %>%
              y = average)) + 
     geom_col(fill = "skyblue") + 
     coord_flip() +
-    labs(title = "The average turbine capacity in kw in each province")
+    labs(title = "The average turbine capacity in kw in each province") +
     theme_light()
 ```
 
@@ -177,7 +178,7 @@ wind_turbine %>%
              y = average)) +
   geom_col(fill = "skyblue") +
   coord_flip() +
-  labs(title = "Average project capacity in mw in each province since 1993")
+  labs(title = "Average project capacity in mw in each province") +
   theme_light()
 
 wind_turbine %>%
@@ -203,7 +204,7 @@ wind_turbine %>%
     theme_light()
 ```
 
-Oh yeah, this shows not only the evolution of the capacity over time but also on the province level, Alberta, Ontario, and Quebec are leading the way, and gganimate is awsome. 
+Oh yeah, this shows not only the evolution of the capacity over time but also on the province level, Alberta, Ontario, and Quebec are leading the way, and gganimate is awsome. **But I think this graph can be improved, if anyone can help me with that please do!**
 
 Let's how the national average varies with the years: 
 
@@ -230,4 +231,4 @@ Now what else can we improve here :
   
 I guess that's all for now folks, I will keep this post updated as much as I can, feel free to hit me up with your feedback and to use the code to your liking.
 
-Thank you for stopping by(kee^showing up for the updates).
+Thank you for stopping by(keep showing up for the updates).
