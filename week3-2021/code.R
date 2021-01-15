@@ -136,6 +136,7 @@ medium <- full %>%
         legend.key = element_blank(),
         strip.background = element_blank(),
         strip.text = element_text(color = "#8abbd0", size = 10))
+
 ################################################################################
 plots <- list(acquisitions_dev, distributions, medium)
 noms <- list("plot_1", "plot_2", "plot_3")
