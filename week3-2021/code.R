@@ -151,3 +151,10 @@ map2(plots, noms, function(x,y){
   }
   )
 
+map2(plots, noms, function(x,y){
+  ggsave(
+    plot = x,
+    filename = paste0("~/new_ws/content/project/tatearts/week3",y,".png"),
+    device = "png",
+    scale = 3)}
+)
