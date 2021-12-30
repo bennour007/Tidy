@@ -1,12 +1,18 @@
-# tidy
-*some essays and take on the data of the tidy tuesday project
+# dataViz
 
-This repo contains 3 main projects from the Tidy Tuesday public data,
+What this repo is:
 
-  * Power lifters
-  
-  * New zeland bird of the year election
-  
-  * Nuclear explosions
-  
-Each of these data sets are contained in a single folder, feel free to take a look, and send me feed back.
+- A personal challenge to take on weekly data viz practice using data from the [TidyTuesday project](https://github.com/rfordatascience/tidytuesday)
+- A demonstraction of my skills with R
+- Part of my effort to construct a dataViz portfolio
+
+What this repo is not:
+
+- A professional attempt to Visualise serious topics
+- Research oriented(academically speaking)
+- A reference for dataViz
+
+The code in this repo is 100% mine, written by yours truely. Anyone visiting this repo can view, review, use, edit, and redistribute this code as they see fit. 
+
+*Pull requests are always welcome*
+
