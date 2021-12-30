@@ -17,4 +17,11 @@ The code in this repo is 100% mine, written by yours truely. Anyone visiting thi
 *Pull requests are always welcome*
 
 ## Some of the work in this repo:
+
+### [Starbucks drinks data-set](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-12-21/readme.md)
 ![week52-2021/starbucks_drinks.png](https://github.com/bennour007/tidy/blob/master/week52-2021/starbucks_drinks.png)
+
+### [Dr. Who data-set](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-11-23/readme.md)
+![week48-2021/drwho.png](https://github.com/bennour007/tidy/blob/26f0000bd2f53cfd233d05f3959c3e853b41f862/week48-2021/drwho.png)
+
+
