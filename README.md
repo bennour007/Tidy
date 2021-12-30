@@ -24,4 +24,7 @@ The code in this repo is 100% mine, written by yours truely. Anyone visiting thi
 ### [Dr. Who data-set](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-11-23/readme.md)
 ![week48-2021/drwho.png](https://github.com/bennour007/tidy/blob/26f0000bd2f53cfd233d05f3959c3e853b41f862/week48-2021/drwho.png)
 
+### [Tate's art collection data-set](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-01-12/readme.md)
+![week3-2021/week3_plot_3.png](https://github.com/bennour007/tidy/blob/0cd444535659589cf692840411d7d2748dcf12b8/week3-2021/week3_plot_3.png)
+
 
