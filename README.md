@@ -16,3 +16,5 @@ The code in this repo is 100% mine, written by yours truely. Anyone visiting thi
 
 *Pull requests are always welcome*
 
+## Some of the work in this repo:
+![week52-2021/starbucks_drinks.png](https://github.com/bennour007/tidy/blob/master/week52-2021/starbucks_drinks.png)
