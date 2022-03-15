@@ -231,9 +231,9 @@ africa_map_final <- cowplot::ggdraw() +
   cowplot::draw_plot(africa_map_legend, 0.15, 0.25, 0.2, 0.2)
 
 ggsave(
-  here::here('week8-2022', '2022-18-freedom.pdf'),
+  here::here('week8-2022', '2022-18-freedom.jpg'),
   plot = africa_map_final, 
   width = 15, 
   height = 16.5, 
-  device = cairo_pdf
+  device = 'jpg'
 )
