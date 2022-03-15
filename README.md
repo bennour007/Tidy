@@ -19,7 +19,7 @@ The code in this repo is 100% mine, written by yours truely. Anyone visiting thi
 ## Some of the work in this repo:
 
 ### [Freedom Index](https://github.com/rfordatascience/tidytuesday/blob/master/data/2022/2022-02-22/readme.md)
-![week8-2022/2022-8-freedom.pdf]()
+![week8-2022/2022-8-freedom.pdf](https://github.com/bennour007/tidy/blob/1c1cbb33630f021b1ef809446e4134409ad3c32e/week8-2022/2022-18-freedom.pdf)
 
 ### [Starbucks drinks data-set](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-12-21/readme.md)
 ![week52-2021/starbucks_drinks.png](https://github.com/bennour007/tidy/blob/master/week52-2021/starbucks_drinks.png)
