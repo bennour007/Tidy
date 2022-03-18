@@ -202,7 +202,7 @@ ggsave(
   here::here('week02-2022', '2022-02-bees.jpg'),
   plot = bees, 
   width = 15, 
-  height = 15, 
+  height = 10, 
   device = 'jpg'
 )  
 
