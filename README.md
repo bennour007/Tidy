@@ -21,6 +21,9 @@ The code in this repo is 100% mine, written by yours truely. Anyone visiting thi
 ### [Freedom Index](https://github.com/rfordatascience/tidytuesday/blob/master/data/2022/2022-02-22/readme.md)
 ![week8-2022/2022-8-freedom.jpg](https://github.com/bennour007/tidy/blob/e96166e2b0d74f2407970a8dbbe0b290f36f67a0/week8-2022/2022-18-freedom.jpg)
 
+### [Bee Colonies in the US](https://github.com/rfordatascience/tidytuesday/blob/master/data/2022/2022-01-11/readme.md)
+![week02-2022/2022-02-bees.jpg](https://github.com/bennour007/tidy/blob/bb523aa6aeb3660c236453de9574540cfed1bbac/week02-2022/2022-02-bees.jpg)
+
 ### [Starbucks drinks data-set](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-12-21/readme.md)
 ![week52-2021/starbucks_drinks.png](https://github.com/bennour007/tidy/blob/master/week52-2021/starbucks_drinks.png)
 
