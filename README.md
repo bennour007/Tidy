@@ -36,4 +36,6 @@ The code in this repo is 100% mine, written by yours truely. Anyone visiting thi
 ### [Tate's art collection data-set](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-01-12/readme.md)
 ![week3-2021/week3_plot_3.png](https://github.com/bennour007/tidy/blob/0cd444535659589cf692840411d7d2748dcf12b8/week3-2021/week3_plot_3.png)
 
+### [Nuclear explosions](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-08-20)
+![week34-2019/nuclear.jpg](https://github.com/bennour007/tidy/blob/6747697e0d33348bf19f98e399c4312279c12539/week34-2019/nuclear.jpg)
 
